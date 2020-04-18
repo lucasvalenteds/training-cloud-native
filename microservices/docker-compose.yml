@@ -1,0 +1,38 @@
+version: "3.5"
+
+services:
+  github:
+    image: io.lucasvalenteds/github
+    build:
+      context: microservice-github
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8081
+    networks:
+      - microservice
+  twitter:
+    image: io.lucasvalenteds/twitter
+    build:
+      context: microservice-twitter
+      dockerfile: Dockerfile
+    ports:
+      - 8082:8082
+    networks:
+      - microservice
+  social:
+    image: io.lucasvalenteds/social
+    build:
+      context: microservice-social
+      dockerfile: Dockerfile
+    ports:
+      - 8083:8083
+    networks:
+      - microservice
+    environment:
+      GITHUB_URL: "http://github:8081"
+      TWITTER_URL: "http://twitter:8082"
+
+networks:
+  microservice:
+    name: microservice
+    driver: bridge
