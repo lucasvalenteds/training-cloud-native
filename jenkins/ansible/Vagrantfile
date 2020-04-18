@@ -1,0 +1,27 @@
+Vagrant.configure("2") do |config|
+
+    config.vm.define "jenkins" do |jenkins|
+        jenkins.vm.box = "ubuntu/bionic64"
+        jenkins.vm.network "private_network", ip: "192.168.100.11"
+        jenkins.vm.provider :virtualbox do |vb|
+            vb.memory = 2048
+            vb.cpus = 4
+        end
+        jenkins.vm.provision :ansible do |ansible|
+            ansible.playbook = "jenkins.yml"
+        end
+    end
+
+    config.vm.define "artifactory" do |artifactory|
+        artifactory.vm.box = "ubuntu/bionic64"
+        artifactory.vm.network "private_network", ip: "192.168.100.12"
+        artifactory.vm.provider :virtualbox do |vb|
+            vb.memory = 2048
+        end
+        artifactory.vm.provision :ansible do |ansible|
+            ansible.playbook = "artifactory.yml"
+        end
+    end
+
+end
+

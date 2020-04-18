@@ -1,0 +1,50 @@
+{
+    "variables": {
+        "ansible_host": "app",
+        "ansible_connection": "docker",
+        "ansible_user": "root"
+    },
+    "builders":[
+        {
+            "type": "docker",
+            "image": "alpine",
+            "commit": true,
+            "run_command": [
+                "--detach", 
+                "--interactive", 
+                "--tty", 
+                "--name", 
+                "{{user `ansible_host`}}", 
+                "{{.Image}}"
+            ],
+            "changes": [
+                "EXPOSE 8080",
+                "CMD [\"./home/vagrant/tomcat/apache-tomcat-9.0.21/bin/catalina.sh\", \"run\"]"
+            ]
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "inline": [
+                "apk update",
+                "apk add python"
+            ]
+        },
+        {
+            "type": "ansible",
+            "playbook_file": "playbook.yml",
+            "extra_arguments": [
+                "--extra-vars",
+                "ansible_host={{user `ansible_host`}} ansible_connection={{user `ansible_connection`}} ansible_user={{user `ansible_user`}}"
+            ]
+        }
+    ],
+    "post-processors": [
+        {
+            "type": "docker-tag",
+            "repository": "io.lucasvalenteds/app",
+            "tag": "latest"
+        }
+    ]
+}

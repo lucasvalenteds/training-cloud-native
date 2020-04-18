@@ -1,0 +1,11 @@
+- name: Wait Jenkins to create file with admin key
+  wait_for:
+    path: /root/.jenkins/secrets/initialAdminPassword
+
+- name: Get Jenkins Admin key
+  shell: cat /root/.jenkins/secrets/initialAdminPassword
+  register: jenkins_key
+
+- name: Print Jenkins Admin key
+  debug:
+    var: jenkins_key

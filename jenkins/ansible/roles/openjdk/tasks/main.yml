@@ -1,0 +1,8 @@
+- name: Update APT cache
+  apt:
+    update_cache: yes
+
+- name: Install OpenJDK from APT
+  apt:
+    name: openjdk-8-jdk
+    state: present

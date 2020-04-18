@@ -1,0 +1,35 @@
+- hosts: all
+  become: yes
+  become_user: root
+
+  tasks:
+    - name: Create Tomcat folder
+      file:
+        path: /home/vagrant/tomcat
+        state: directory
+
+    - name: Install Tar
+      apk:
+        name: tar
+        state: present
+
+    - name: Install Tomcat
+      unarchive:
+        src: http://apache.cs.utah.edu/tomcat/tomcat-9/v9.0.21/bin/apache-tomcat-9.0.21.tar.gz
+        dest: /home/vagrant/tomcat
+        remote_src: yes
+
+    - name: Deploy application WAR
+      copy:
+        src: app.war
+        dest: /home/vagrant/tomcat/apache-tomcat-9.0.21/webapps
+
+    - name: Install OpenJDK
+      apk:
+        name: openjdk8
+        state: present
+
+    - name: Remove Tomcat Tar file
+      file:
+        path: /home/vagrant/tomcat/apache-tomcat-9.0.21.tar.gz
+        state: absent

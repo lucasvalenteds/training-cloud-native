@@ -1,0 +1,45 @@
+pipeline{
+    agent any
+    options {
+        disableConcurrentBuilds()
+    }
+    environment {
+        ARTIFACTORY_URL = credentials("artifactory-url")
+        ARTIFACTORY_REPO = credentials("artifactory-repo")
+        ARTIFACTORY_USERNAME = credentials("artifactory-username")
+        ARTIFACTORY_PASSWORD = credentials("artifactory-password")
+        APPLICATION_WAR_URL = credentials("application-war-url")
+        DOCKER_HUB_USERNAME = credentials("docker-hub-username")
+        DOCKER_HUB_PASSWORD = credentials("docker-hub-password")
+    }
+    stages {
+        stage("Build") {
+            steps {
+                dir("jenkins") {
+                    sh "./gradlew --no-daemon test war artifactoryPublish"
+                }
+            }
+        }
+        stage("Infra") {
+            steps {
+                dir("jenkins") {
+                    sh "curl $APPLICATION_WAR_URL --output app.war"
+                    sh "docker ps -f name=app -q | xargs --no-run-if-empty docker container stop"
+                    sh "packer build packer.json"
+
+                    sh "docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD"
+                    sh "docker tag io.lucasvalenteds/app:latest $DOCKER_HUB_USERNAME/app:latest"
+                    sh "docker push $DOCKER_HUB_USERNAME/app:latest"
+                }
+            }
+        }
+        stage("Run") {
+            steps {
+                dir("jenkins") {
+                    sh "docker pull $DOCKER_HUB_USERNAME/app:latest"
+                    sh "docker run --name app --rm --detach --network host -p 8080:8080 $DOCKER_HUB_USERNAME/app:latest"
+                }
+            }
+        }
+    }
+}

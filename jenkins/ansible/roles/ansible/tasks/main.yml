@@ -1,0 +1,21 @@
+- name: Add Ansible PPA
+  apt_repository:
+    repo: ppa:ansible/ansible
+    state: present
+
+- name: Install Ansible from APT
+  apt:
+    name: ansible
+    state: present
+
+- name: Update APT packages
+  apt:
+    upgrade: dist
+
+- name: Get Ansible version
+  shell: ansible --version
+  register: ansible_version
+
+- name: Print Ansible version
+  debug:
+    var: ansible_version

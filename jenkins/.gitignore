@@ -1,0 +1,6 @@
+.gradle/
+.idea/
+.vagrant/
+build/
+out/
+app.war

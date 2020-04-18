@@ -1,0 +1,25 @@
+- name: Update APT cache
+  apt:
+    update_cache: yes
+
+- name: Check if jenkins.war file exists on host machine
+  local_action: stat path={{ role_path }}/files/jenkins.war
+  become: no
+  register: jenkins_war
+
+- name: Copy Jenkins ZIP file from host
+  copy: 
+    src: jenkins.war
+    dest: /home/vagrant
+  when: jenkins_war.stat.exists
+
+- name: Download Jenkins
+  get_url:
+    url: http://mirrors.jenkins.io/war-stable/latest/jenkins.war
+    dest: /home/vagrant/jenkins.war
+  when: jenkins_war.stat.exists == False
+
+- name: Run Jenkins
+  shell: nohup java -jar /home/vagrant/jenkins.war --httpPort=9090 &
+
+- include: handlers/jenkins_handlers.yml
