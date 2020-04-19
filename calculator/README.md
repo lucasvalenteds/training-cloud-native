@@ -1,4 +1,4 @@
-# Basic Calculator
+# Calculator
 
 The goal is to demonstrate a modular calculator with operations injectable via Spring context.
 
